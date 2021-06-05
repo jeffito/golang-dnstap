@@ -67,7 +67,7 @@ func NewFrameStreamSockInputFromPath(socketPath string, socketUser string) (inpu
 	os.Remove(socketPath)
 	listener, err := net.Listen("unix", socketPath)
 	if err != nil {
-		return
+		return nil, err
 	}
 	user, err := user.Lookup(socketUser)
 	if err != nil {
@@ -81,7 +81,8 @@ func NewFrameStreamSockInputFromPath(socketPath string, socketUser string) (inpu
 	if err != nil {
 		return nil, err
 	}
-	if err := os.Chown(socketPath, uid, gid); err != nil {
+	err = os.Chown(socketPath, uid, gid)
+	if err != nil {
 		return nil, err
 	}
 	return NewFrameStreamSockInput(listener), nil
