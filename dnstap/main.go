@@ -26,7 +26,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dnstap/golang-dnstap"
+	dnstap "github.com/dnstap/golang-dnstap"
 )
 
 type stringList []string
@@ -42,6 +42,7 @@ func (sl *stringList) String() string {
 var (
 	flagTimeout    = flag.Duration("t", 0, "I/O timeout for tcp/ip and unix domain sockets")
 	flagWriteFile  = flag.String("w", "", "write output to file")
+	flagSocketUser = flag.String("u", "root", "user to own socket")
 	flagAppendFile = flag.Bool("a", false, "append to the given file, do not overwrite. valid only when outputting a text or YAML file.")
 	flagQuietText  = flag.Bool("q", false, "use quiet text output")
 	flagYamlText   = flag.Bool("y", false, "use verbose YAML output")
@@ -78,7 +79,7 @@ func main() {
 	flag.Var(&unixOutputs, "U", "write dnstap payloads to unix socket")
 	flag.Var(&fileInputs, "r", "read dnstap payloads from file")
 	flag.Var(&tcpInputs, "l", "read dnstap payloads from tcp/ip")
-	flag.Var(&unixInputs, "u", "read dnstap payloads from unix socket")
+	flag.Var(&unixInputs, "s", "read dnstap payloads from unix socket")
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(0)
@@ -148,7 +149,7 @@ func main() {
 		go runInput(i, output, &iwg)
 	}
 	for _, path := range unixInputs {
-		i, err := dnstap.NewFrameStreamSockInputFromPath(path)
+		i, err := dnstap.NewFrameStreamSockInputFromPath(path, *flagSocketUser)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "dnstap: Failed to open input socket %s: %v\n", path, err)
 			os.Exit(1)

@@ -57,7 +57,7 @@ func readOne(t *testing.T, out chan []byte) {
 
 // Test if dnstap can accept multiple connections on the socket
 func TestMultiConn(t *testing.T) {
-	in, err := NewFrameStreamSockInputFromPath("dnstap.sock")
+	in, err := NewFrameStreamSockInputFromPath("dnstap.sock", "unbound")
 	if err != nil {
 		t.Fatal(err)
 	}
