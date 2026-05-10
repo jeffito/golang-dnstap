@@ -32,7 +32,6 @@ import (
 // guidance (e.g., identity and version being DNS strings, which have a maximum
 // length of 255) add up to less than 1KB. The default 96KiB size of the buffer
 // allows a bit over 30KB space for "extra" metadata.
-//
 var MaxPayloadSize uint32 = 96 * 1024
 
 // A FrameStreamInput reads dnstap data from an io.ReadWriter.

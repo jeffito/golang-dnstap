@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/user"
+	"strconv"
 	"time"
 )
 
@@ -61,11 +63,27 @@ func (input *FrameStreamSockInput) SetLogger(logger Logger) {
 //
 // If a socket or other file already exists at socketPath,
 // NewFrameStreamSockInputFromPath removes it before creating the socket.
-func NewFrameStreamSockInputFromPath(socketPath string) (input *FrameStreamSockInput, err error) {
+func NewFrameStreamSockInputFromPath(socketPath string, socketUser string) (input *FrameStreamSockInput, err error) {
 	os.Remove(socketPath)
 	listener, err := net.Listen("unix", socketPath)
 	if err != nil {
-		return
+		return nil, err
+	}
+	user, err := user.Lookup(socketUser)
+	if err != nil {
+		return nil, err
+	}
+	uid, err := strconv.Atoi(user.Uid)
+	if err != nil {
+		return nil, err
+	}
+	gid, err := strconv.Atoi(user.Gid)
+	if err != nil {
+		return nil, err
+	}
+	err = os.Chown(socketPath, uid, gid)
+	if err != nil {
+		return nil, err
 	}
 	return NewFrameStreamSockInput(listener), nil
 }
